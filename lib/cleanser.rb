@@ -52,7 +52,10 @@ module Cleanser
         BANNER
         opts.on("-r", "--rspec", "RSpec") { options[:rspec] = true }
         opts.on("-h", "--help", "Show this.") { puts opts; exit }
-        opts.on("-v", "--version", "Show Version"){ require 'cleanser/version'; puts Cleanser::VERSION; exit}
+        opts.on("-v", "--version", "Show Version") do
+          require 'cleanser/version' unless defined?(Cleanser::VERSION)
+          puts Cleanser::VERSION; exit
+        end
       end.parse!(argv)
       options
     end
