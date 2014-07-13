@@ -10,7 +10,7 @@ gem install cleanser
 Usage
 =====
 
-```Ruby
+```Bash
 # whole test folder
 cleanser folder folder/failing_test.rb
 
