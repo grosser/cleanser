@@ -55,5 +55,41 @@ describe Cleanser do
       subject.should_receive(:puts).with("Fails when b.rb, c.rb are run together")
       subject.find_polluter("a.rb", "0.rb", "1.rb", "2.rb", "b.rb", "3.rb", "4.rb", "5.rb", "6.rb", "7.rb", "c.rb", "8.rb", "9.rb", "c.rb")
     end
+
+    context "folder" do
+      it "finds the polluter in a folder with _test.rb" do
+        subject.should_receive(:puts).with("Fails when x/b_test.rb, x/c_test.rb are run together")
+        FileUtils.mkdir("x")
+        FileUtils.mv("b.rb", "x/b_test.rb")
+        FileUtils.mv("c.rb", "x/c_test.rb")
+        write("x/x.rb", "raise") # does not run everything
+        subject.find_polluter("x", "x/c_test.rb")
+      end
+
+      it "finds the polluter in a nested folder" do
+        subject.should_receive(:puts).with("Fails when x/y/z/b_test.rb, x/y/z/c_test.rb are run together")
+        FileUtils.mkdir_p("x/y/z")
+        FileUtils.mv("b.rb", "x/y/z/b_test.rb")
+        FileUtils.mv("c.rb", "x/y/z/c_test.rb")
+        subject.find_polluter("x", "x/y/z/c_test.rb")
+      end
+
+      it "finds the polluter in a folder with test_" do
+        subject.should_receive(:puts).with("Fails when x/test_b.rb, x/test_c.rb are run together")
+        FileUtils.mkdir("x")
+        FileUtils.mv("b.rb", "x/test_b.rb")
+        FileUtils.mv("c.rb", "x/test_c.rb")
+        write("x/x.rb", "raise") # does not run everything
+        subject.find_polluter("x", "x/test_c.rb")
+      end
+
+      it "finds the polluter when test pattern cannot be found for folder" do
+        subject.should_receive(:puts).with("Fails when x/b.rb, x/c.rb are run together")
+        FileUtils.mkdir("x")
+        FileUtils.mv("b.rb", "x/b.rb")
+        FileUtils.mv("c.rb", "x/c.rb")
+        subject.find_polluter("x", "x/c.rb")
+      end
+    end
   end
 end

@@ -2,6 +2,8 @@ module Cleanser
   class << self
     def find_polluter(*files)
       failing = files.pop
+      expand_folders(files, failing)
+
       if !files.include?(failing)
         abort "Files have to include the failing file, use the copy helper"
       elsif files.size < 2
@@ -28,6 +30,28 @@ module Cleanser
     end
 
     private
+
+    def expand_folders(files, failing)
+      files.map! do |f|
+        File.file?(f) ? f : files_from_folder(f, pattern(failing))
+      end.flatten!
+    end
+
+    def files_from_folder(folder, pattern)
+      nested = "{,/*/**}" # follow one symlink and direct children
+      Dir[File.join(folder, nested, pattern)].map{|f|f.gsub("//", "/")}
+    end
+
+    def pattern(test)
+      base = test.split($/).last
+      if base =~ /^test_/
+        "#{$1}*"
+      elsif base =~ /(_test|_spec)\.rb/
+        "*#{$1}.rb"
+      else
+        "*"
+      end
+    end
 
     def find_polluter_set(sets, failing)
       sets.each do |set|
