@@ -1,5 +1,10 @@
 module Cleanser
   class << self
+    def cli(argv)
+      parse_options(argv)
+      find_polluter(*argv) ? 0 : 1
+    end
+
     def find_polluter(*files)
       failing = files.pop
       expand_folders(files, failing)
@@ -30,6 +35,26 @@ module Cleanser
     end
 
     private
+
+    def parse_options(argv)
+      require 'optparse'
+      options = {}
+      OptionParser.new do |opts|
+        opts.banner = <<-BANNER.gsub(/^ {10}/, "")
+          Find polluting test by bisecting your tests.
+
+
+          Usage:
+              cleanser a.rb failing.rb b.rb c.rb failing.rb
+              cleanser folder failing.rb
+
+          Options:
+        BANNER
+        opts.on("-h", "--help", "Show this.") { puts opts; exit }
+        opts.on("-v", "--version", "Show Version"){ require 'cleanser/version'; puts Cleanser::VERSION; exit}
+      end.parse!(argv)
+      options
+    end
 
     def expand_folders(files, failing)
       files.map! do |f|

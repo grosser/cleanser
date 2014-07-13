@@ -5,6 +5,30 @@ describe Cleanser do
     Cleanser::VERSION.should =~ /^[\.\da-z]+$/
   end
 
+  context "CLI" do
+    def cleanser(command, options={})
+      sh("#{Bundler.root}/bin/cleanser #{command}", options)
+    end
+
+    def sh(command, options={})
+      result = `#{command} #{"2>&1" unless options[:keep_output]}`
+      raise "#{options[:fail] ? "SUCCESS" : "FAIL"} #{command}\n#{result}" if $?.success? == !!options[:fail]
+      result
+    end
+
+    it "fails with nothing" do
+      cleanser("", :fail => true)
+    end
+
+    it "shows version" do
+      cleanser("-v").should == "#{Cleanser::VERSION}\n"
+    end
+
+    it "shows help" do
+      cleanser("-h").should include "Usage"
+    end
+  end
+
   describe "#find_polluter" do
     def write(file, content)
       File.open(file, "w") { |f| f.write(content) }
