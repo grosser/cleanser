@@ -1,4 +1,4 @@
-Find polluting test by bisecting your tests
+Find polluting test by bisecting your tests.
 
 Install
 =======
@@ -11,7 +11,11 @@ Usage
 =====
 
 ```Ruby
-CODE EXAMPLE
+# whole test folder
+cleanser folder failing_test.rb
+
+# individual files
+cleanser other_test.rb failing_test.rb yetanother_test.rb failing_test.rb
 ```
 
 Author
