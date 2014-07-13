@@ -1,11 +1,11 @@
 module Cleanser
   class << self
     def cli(argv)
-      parse_options(argv)
-      find_polluter(*argv) ? 0 : 1
+      options = parse_options(argv)
+      find_polluter(argv, options) ? 0 : 1
     end
 
-    def find_polluter(*files)
+    def find_polluter(files, options={})
       failing = files.pop
       expand_folders(files, failing)
 
@@ -13,18 +13,18 @@ module Cleanser
         abort "Files have to include the failing file, use the copy helper"
       elsif files.size < 2
         abort "Files have to be more than 2, use the copy helper"
-      elsif !success?([failing])
+      elsif !success?([failing], options)
         abort "#{failing} fails when run on it's own"
-      elsif success?(files)
+      elsif success?(files, options)
         abort "tests pass locally"
       else
         loop do
           a = remove_from(files, files.size / 2, :not => failing)
           b = files - (a - [failing])
-          status, files = find_polluter_set([a, b], failing)
+          status, files = find_polluter_set([a, b], failing, options)
           if status == :finished
             puts "Fails when #{files.join(", ")} are run together"
-            break
+            return true
           elsif status == :continue
             next
           else
@@ -50,6 +50,7 @@ module Cleanser
 
           Options:
         BANNER
+        opts.on("-r", "--rspec", "RSpec") { options[:rspec] = true }
         opts.on("-h", "--help", "Show this.") { puts opts; exit }
         opts.on("-v", "--version", "Show Version"){ require 'cleanser/version'; puts Cleanser::VERSION; exit}
       end.parse!(argv)
@@ -78,10 +79,10 @@ module Cleanser
       end
     end
 
-    def find_polluter_set(sets, failing)
+    def find_polluter_set(sets, failing, options)
       sets.each do |set|
         next if set == [failing]
-        if !success?(set)
+        if !success?(set, options)
           if set.size == 2
             return [:finished, set]
           else
@@ -96,8 +97,12 @@ module Cleanser
       set.dup.delete_if { |f| f != options[:not] && (x -= 1) >= 0 }
     end
 
-    def success?(files)
-      command = "bundle exec ruby #{files.map { |f| "-r./#{f.sub(/\.rb$/, "")}" }.join(" ")} -e ''"
+    def success?(files, options)
+      command = if options[:rspec]
+        "bundle exec rspec #{files.join(" ")}"
+      else
+        "bundle exec ruby #{files.map { |f| "-r./#{f.sub(/\.rb$/, "")}" }.join(" ")} -e ''"
+      end
       puts "Running: #{command}"
       status = system(command)
       puts "Status: #{status ? "Success" : "Failure"}"
