@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
-$LOAD_PATH << File.expand_path("../../lib", __FILE__)
-require "rubygems" if RUBY_VERSION < "1.9"
+root = File.expand_path("../..", __FILE__)
+$LOAD_PATH << "#{root}/lib" if File.exist?("#{root}/Gemfile")
+
 require "cleanser"
 exit Cleanser.cli(ARGV)

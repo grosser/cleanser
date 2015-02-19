@@ -34,11 +34,20 @@ describe Cleanser do
       cleanser("-h").should include "Usage"
     end
 
-    it "finds polluter with test-unit" do
-      write "a.rb", "$a=1"
-      write "b.rb", "$b=1"
-      write "c.rb", "raise if defined?(RSpec); exit($b || 0)"
-      cleanser("a.rb b.rb c.rb c.rb")
+    context "with test-unit polluter" do
+      before do
+        write "a.rb", "$a=1"
+        write "b.rb", "$b=1"
+        write "c.rb", "raise if defined?(RSpec); exit($b || 0)"
+      end
+
+      it "finds polluter with test-unit" do
+        cleanser("a.rb b.rb c.rb c.rb")
+      end
+
+      it "finds polluter with copy-pasted inspected array" do
+        cleanser("'\"a.rb\",\"b.rb\",\"c.rb\"' c.rb")
+      end
     end
 
     it "finds polluter with rspec" do

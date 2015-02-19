@@ -62,7 +62,13 @@ module Cleanser
 
     def expand_folders(files, failing)
       files.map! do |f|
-        File.file?(f) ? f : files_from_folder(f, pattern(failing))
+        if File.file?(f)
+          f
+        elsif f =~ /".+"/
+          f.split(/, ?/).map { |f| f.tr('"', '') }
+        else
+          files_from_folder(f, pattern(failing))
+        end
       end.flatten!
     end
 
