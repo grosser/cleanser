@@ -10,9 +10,9 @@ module Cleanser
       expand_folders(files, failing)
 
       if !files.include?(failing)
-        abort "Files have to include the failing file, use the copy helper"
+        abort "Files have to include the failing file"
       elsif files.size < 2
-        abort "Files have to be more than 2, use the copy helper"
+        abort "Files have to be more than 2"
       elsif !success?([failing], options)
         abort "#{failing} fails when run on it's own"
       elsif success?(files, options)
