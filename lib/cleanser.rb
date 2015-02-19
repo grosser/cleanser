@@ -110,7 +110,11 @@ module Cleanser
       command = if options[:rspec]
         "bundle exec rspec #{files.join(" ")}"
       else
-        "bundle exec ruby #{files.map { |f| "-r./#{f.sub(/\.rb$/, "")}" }.join(" ")} -e ''"
+        require = files.map do |f|
+          f = "./#{f}" unless f.start_with?("/")
+          "-r #{f.sub(/\.rb$/, "")}"
+        end.join(" ")
+        "bundle exec ruby #{require} -e ''"
       end
       puts "Running: #{command}"
       status = system(command)

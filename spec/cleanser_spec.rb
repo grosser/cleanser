@@ -45,6 +45,10 @@ describe Cleanser do
         cleanser("a.rb b.rb c.rb c.rb")
       end
 
+      it "finds polluter with absolute paths" do
+        cleanser("#{Dir.pwd}/a.rb #{Dir.pwd}/b.rb #{Dir.pwd}/c.rb #{Dir.pwd}/c.rb")
+      end
+
       it "finds polluter with copy-pasted inspected array" do
         cleanser("'\"a.rb\",\"b.rb\",\"c.rb\"' c.rb")
       end
