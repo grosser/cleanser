@@ -7,6 +7,10 @@ Install
 gem install cleanser
 ```
 
+or standalone
+
+curl https://rubinjam.herokuapp.com/pack/cleanser > cleanser && chmod +x cleanser
+
 Usage
 =====
 
