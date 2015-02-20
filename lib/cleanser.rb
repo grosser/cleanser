@@ -78,9 +78,9 @@ module Cleanser
     end
 
     def pattern(test)
-      base = test.split($/).last
+      base = File.basename(test)
       if base =~ /^test_/
-        "#{$1}*"
+        "#{$&}*"
       elsif base =~ /(_test|_spec)\.rb/
         "*#{$1}.rb"
       else
