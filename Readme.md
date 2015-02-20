@@ -33,6 +33,9 @@ cleanser other_test.rb failing_test.rb yetanother_test.rb failing_test.rb
 
 # rspec
 cleanser other_spec.rb failing_spec.rb yetanother_spec.rb failing_spec.rb --rspec
+
+# files from copy-pasted output
+cleanser '"other_test.rb","failing_test.rb","yetanother_test.rb"' failing_test.rb
 ```
 
 Author
