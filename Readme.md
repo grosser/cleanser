@@ -28,11 +28,11 @@ Running: bundle exec ruby -r./folder/failing_test.rb -r./folder/b_test.rb -e ''
 Status: Failure
 Fails when folder/b_test.rb.rb, folder/failing_test.rb are run together
 
-# individual files
-cleanser other_test.rb failing_test.rb yetanother_test.rb failing_test.rb
+# individual files (copied from CI failure)
+cleanser other_test.rb failing_test.rb yetanother_test.rb failing_test.rb --seed 12345
 
 # rspec
-cleanser other_spec.rb failing_spec.rb yetanother_spec.rb failing_spec.rb --rspec
+cleanser other_spec.rb failing_spec.rb yetanother_spec.rb failing_spec.rb --rspec --seed 12345
 
 # files from copy-pasted output
 cleanser '"other_test.rb","failing_test.rb","yetanother_test.rb"' failing_test.rb

@@ -54,11 +54,38 @@ describe Cleanser do
       end
     end
 
-    it "finds polluter with rspec" do
-      write "a.rb", "$a=1"
-      write "b.rb", "$b=1"
-      write "c.rb", "raise unless defined?(RSpec); at_exit { exit($b || 0) }"
-      cleanser("a.rb b.rb c.rb c.rb --rspec")
+    context "rspec" do
+      it "finds polluter with rspec" do
+        write "a.rb", "$a=1"
+        write "b.rb", "$b=1"
+        write "c.rb", "raise unless defined?(RSpec); at_exit { exit($b || 0) }"
+        cleanser("a.rb b.rb c.rb c.rb --rspec")
+      end
+
+      it "uses --seed" do
+        write "a.rb", <<-RUBY.gsub(/^          /, "")
+          describe "random" do
+            20.times { |i| it(i) { print "-\#{i}-" } }
+          end
+        RUBY
+        write "b.rb", ""
+        write "c.rb", ""
+        result = cleanser("a.rb b.rb c.rb a.rb --seed 12345 --rspec", fail: true)
+        result.should include("-13-.-8-.-16-.-3-.-15-.-12-.-0-.-10-.-7-.-11-.-6-.-17-.-19-.-18-.-14-.-9-.-4-.-1-.-5-.-2-.")
+      end
+    end
+
+    it "uses --seed" do
+      write "a.rb", <<-RUBY.gsub(/^        /, "")
+        require "minitest/autorun"
+        class FooTest < Minitest::Test
+          20.times { |i| define_method("test_" + i.to_s) { print "-\#{i}-" } }
+        end
+      RUBY
+      write "b.rb", ""
+      write "c.rb", ""
+      result = cleanser("a.rb b.rb c.rb a.rb --seed 12345", fail: true)
+      result.should include("-0-.-13-.-12-.-1-.-11-.-7-.-8-.-10-.-16-.-19-.-4-.-2-.-9-.-3-.-15-.-17-.-14-.-5-.-6-.-18-.")
     end
   end
 

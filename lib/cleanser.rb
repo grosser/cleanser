@@ -51,6 +51,7 @@ module Cleanser
           Options:
         BANNER
         opts.on("-r", "--rspec", "RSpec") { options[:rspec] = true }
+        opts.on("-s", "--seed=SEED", "Use seed to run tests") { |seed| options[:seed] = seed }
         opts.on("-h", "--help", "Show this.") { puts opts; exit }
         opts.on("-v", "--version", "Show Version") do
           require 'cleanser/version' unless defined?(Cleanser::VERSION)
@@ -107,14 +108,18 @@ module Cleanser
     end
 
     def success?(files, options)
+      addition = if seed = options[:seed]
+        "#{" --" unless options[:rspec]} --seed #{seed}"
+      end
+
       command = if options[:rspec]
-        "bundle exec rspec #{files.join(" ")}"
+        "bundle exec rspec #{files.join(" ")}#{addition}"
       else
         require = files.map do |f|
           f = "./#{f}" unless f.start_with?("/")
           "-r #{f.sub(/\.rb$/, "")}"
         end.join(" ")
-        "bundle exec ruby #{require} -e ''"
+        "bundle exec ruby #{require} -e ''#{addition}"
       end
       puts "Running: #{command}"
       status = system(command)
