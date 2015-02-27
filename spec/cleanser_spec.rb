@@ -7,6 +7,13 @@ describe Cleanser do
     File.open(file, "w") { |f| f.write(content) }
   end
 
+  def run_seeded(extra="")
+    result = cleanser("a.rb b.rb c.rb a.rb --seed 12345#{extra}", fail: true)
+    order = result[/(-\d+-\.)+/]
+    order.size.should == 90
+    order
+  end
+
   it "has a VERSION" do
     Cleanser::VERSION.should =~ /^[\.\da-z]+$/
   end
@@ -70,8 +77,7 @@ describe Cleanser do
         RUBY
         write "b.rb", ""
         write "c.rb", ""
-        result = cleanser("a.rb b.rb c.rb a.rb --seed 12345 --rspec", fail: true)
-        result.should include("-13-.-8-.-16-.-3-.-15-.-12-.-0-.-10-.-7-.-11-.-6-.-17-.-19-.-18-.-14-.-9-.-4-.-1-.-5-.-2-.")
+        run_seeded(" --rspec").should == run_seeded(" --rspec")
       end
     end
 
@@ -84,8 +90,7 @@ describe Cleanser do
       RUBY
       write "b.rb", ""
       write "c.rb", ""
-      result = cleanser("a.rb b.rb c.rb a.rb --seed 12345", fail: true)
-      result.should include("-0-.-13-.-12-.-1-.-11-.-7-.-8-.-10-.-16-.-19-.-4-.-2-.-9-.-3-.-15-.-17-.-14-.-5-.-6-.-18-.")
+      run_seeded.should == run_seeded
     end
   end
 
