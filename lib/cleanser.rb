@@ -6,8 +6,9 @@ module Cleanser
     end
 
     def find_polluter(files, options={})
-      failing = files.pop
+      failing = localize_file(files.pop)
       expand_folders(files, failing)
+      files.map! { |f| localize_file(f) }
 
       if !files.include?(failing)
         abort "Files have to include the failing file"
@@ -73,6 +74,10 @@ module Cleanser
       end.flatten!
     end
 
+    def localize_file(file)
+      file.sub(/^#{Regexp.escape(Dir.pwd)}/, "")
+    end
+
     def files_from_folder(folder, pattern)
       nested = "{,/*/**}" # follow one symlink and direct children
       Dir[File.join(folder, nested, pattern)].map{|f|f.gsub("//", "/")}
@@ -115,11 +120,8 @@ module Cleanser
       command = if options[:rspec]
         "bundle exec rspec #{files.join(" ")}#{addition}"
       else
-        require = files.map do |f|
-          f = "./#{f}" unless f.start_with?("/")
-          "-r #{f.sub(/\.rb$/, "")}"
-        end.join(" ")
-        "bundle exec ruby #{require} -e ''#{addition}"
+        require_list = files.map { |file| file.sub(" ", "\\ ") }.join(" ")
+        "bundle exec ruby -e '%w[#{require_list}].each { |f| require %{./\#{f}} }'#{addition}"
       end
       puts "Running: #{command}"
       status = system(command)

@@ -9,7 +9,7 @@ describe Cleanser do
 
   def run_seeded(extra="")
     result = cleanser("a.rb b.rb c.rb a.rb --seed 12345#{extra}", fail: true)
-    order = result[/(-\d+-\.)+/]
+    order = result[/(-\d+-\.)+/] || raise(result)
     order.size.should == 90
     order
   end
@@ -53,7 +53,8 @@ describe Cleanser do
       end
 
       it "finds polluter with absolute paths" do
-        cleanser("#{Dir.pwd}/a.rb #{Dir.pwd}/b.rb #{Dir.pwd}/c.rb #{Dir.pwd}/c.rb")
+        result = cleanser("#{Dir.pwd}/a.rb #{Dir.pwd}/b.rb #{Dir.pwd}/c.rb #{Dir.pwd}/c.rb")
+        result.should_not include Dir.pwd
       end
 
       it "finds polluter with copy-pasted inspected array" do
@@ -122,7 +123,7 @@ describe Cleanser do
       run_valid_order
     end
 
-    it "fail quickly when file itself faiks" do
+    it "fail quickly when file itself fails" do
       write "c.rb", "exit(1)"
       subject.should_receive(:abort).with(/c.rb fails when run on it's own/)
       run_valid_order
