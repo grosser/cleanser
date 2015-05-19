@@ -7,6 +7,7 @@ Gem::Specification.new name, Cleanser::VERSION do |s|
   s.email = "michael@grosser.it"
   s.homepage = "https://github.com/grosser/#{name}"
   s.files = `git ls-files lib/ bin/ MIT-LICENSE`.split("\n")
+  s.executables << 'cleanser'
   s.license = "MIT"
   s.required_ruby_version = '>= 1.9.3'
 end
