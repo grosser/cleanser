@@ -118,7 +118,7 @@ module Cleanser
       end
 
       command = if options[:rspec]
-        "bundle exec rspec #{files.join(" ")}#{addition}"
+        "bundle exec rspec --fail-fast #{files.join(" ")}#{addition}"
       else
         require_list = files.map { |file| file.sub(" ", "\\ ") }.join(" ")
         "bundle exec ruby -e '%w[#{require_list}].each { |f| require %{./\#{f}} }'#{addition}"
