@@ -1,5 +1,11 @@
 Find polluting test by bisecting your tests.
 
+Alternatives
+============
+
+ - RSpec: use `--bisect` option on >3.3 and not this gem.
+ - Minitest: https://github.com/seattlerb/minitest-bisect
+
 Install
 =======
 
